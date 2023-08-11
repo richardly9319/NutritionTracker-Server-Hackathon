@@ -1,0 +1,23 @@
+{
+  "name": "nutritiontracker-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/richardly9319/NutritionTracker-Hackathon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/richardly9319/NutritionTracker-Hackathon/issues"
+  },
+  "homepage": "https://github.com/richardly9319/NutritionTracker-Hackathon#readme",
+  "dependencies": {
+    "cons": "^0.0.2",
+    "express": "^4.18.2"
+  }
+}
