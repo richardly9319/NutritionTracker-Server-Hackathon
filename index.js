@@ -26,7 +26,6 @@ const makeUrl = (ingredient) => {
     return myUrl;
 
 }
-d
 
 app.post('/', (req, dataRes) => {
 
