@@ -12,9 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded());
 // app.use(express.multipart());
 
-app.get('/', (req, res) => {
-    res.send("Nutrition Tracker");
-})
+// app.get('/', (req, res) => {
+//     res.send("Nutrition Tracker");
+// })
 
 function grabNutrientFilter(item) {
         return {"name": item['nutrientName'], "unit": item['unitName'], "value": item['value']};
