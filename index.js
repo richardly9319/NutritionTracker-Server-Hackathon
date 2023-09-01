@@ -4,47 +4,84 @@ const port = 8080;
 const fs = require('fs');
 const cors = require('cors');
 const axios = require('axios');
+const bodyParser = require('body-parser');
 
 let mealsDiary = require('./data/mealsDiary.json');
+const { Console } = require('console');
 
-app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
+// app.use(express.urlencoded());
+// app.use(express.multipart());
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.send("Nutrition Tracker");
 })
 
-app.post('/', (req, res) => {
-    console.log(mealsDiary);
-    console.log("req Body", req.body);
-    fs.readFile('./data/mealsDiary.json', 'utf8', function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
 
-            axios.get('https://api.nal.usda.gov/fdc/v1/foods/search?query=cheddar%20cheese&dataType=Foundation,SR%20Legacy&pageSize=1&sortBy=dataType.keyword&sortOrder=asc&api_key=E7kdkQyilTaMxHGab9YFKDxNAqqbQcYymop0A76f').then(
-                response => {
-                    console.log(response.data);
-                }
-                
-            )
+const makeUrl = (ingredient) => {
+    myUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${ingredient.replace(' ', '%20')}&dataType=Foundation,SR%20Legacy&pageSize=1&sortBy=dataType.keyword&sortOrder=asc&api_key=E7kdkQyilTaMxHGab9YFKDxNAqqbQcYymop0A76f`
+
+    return myUrl;
+
+}
+
+app.post('/', (req, dataRes) => {
+
+    let totalCarbs = 0;
+    let totalFats = 0;
+    let totalProtein = 0;
+
+    console.log(req.body.Ingredients);
 
 
-            // SEND RESPONSE with mealTotalCalories, mealTotalCarbs, mealTotalFats, mealTotalProtein
-            obj = JSON.parse(data);
-            obj.push(req.body);
-            // console.log(obj);
-            res.send(obj);
+    const ingredients = req.body.Ingredients;
+    const length = ingredients.length;
+    let i = 0;
+    console.log(length);
+    ingredients.forEach(ingredient => {
+        const url = makeUrl(ingredient.ingredient);
 
-            fs.writeFile('mealsDiary.json', JSON.stringify(obj), (error) => {
-                if (error) throw error;
-            });
+        axios.get(url).then(res => {
+            const nutrientData = res.data.foods[0].foodNutrients;
+            let nutrientProtein = nutrientData.find((nutrient) => {
+                return nutrient.nutrientName == 'Protein';
+            })
+            let nutrientFats = nutrientData.find((nutrient) => {
+                return nutrient.nutrientName == 'Total lipid (fat)';
+            })
+            let nutrientCarbs = nutrientData.find((nutrient) => {
+                return nutrient.nutrientName == 'Carbohydrate, by difference';
+            })
+            let Carbs = ingredient.numGrams / 100 * nutrientCarbs.value;
+            let Fats = ingredient.numGrams / 100 * nutrientFats.value;
+            let Protein = ingredient.numGrams / 100 * nutrientProtein.value;
+            totalCarbs += Carbs;
+            totalFats += Fats;
+            totalProtein += Protein;
 
-        }
+            console.log(Protein);
+            i++;
+            if (i === (length)) {
+                console.log('end of array');
+                dataRes.send({
+                    protein: totalProtein,
+                    fat: totalFats,
+                    carbs: totalCarbs
+                })
+            }
+
+        }).catch(err => {
+            console.log(err)
+            res.status(403);
+        })
     })
-    
+
 })
+
+
 
 app.listen(port, () => {
     console.log(`Listening port on ${port}`);
-  });
+});
