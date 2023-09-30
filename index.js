@@ -7,12 +7,9 @@ const axios = require('axios');
 const bodyParser = require('body-parser');
 
 let mealsDiary = require('./data/mealsDiary.json');
-const { Console } = require('console');
 
 app.use(express.json());
 app.use(bodyParser.json());
-// app.use(express.urlencoded());
-// app.use(express.multipart());
 app.use(cors());
 
 app.get('/', (req, res) => {
